@@ -1,0 +1,14 @@
+{
+  "name": "Esoterica",
+  "short_name": "Esoterica",
+  "description": "Remil, doğum haritası, tarot, kahve falı. Her şey cihazında kalır.",
+  "lang": "tr",
+  "start_url": "/esoterica/",
+  "scope": "/esoterica/",
+  "display": "standalone",
+  "background_color": "#0b0d1f",
+  "theme_color": "#0b0d1f",
+  "icons": [
+    { "src": "/esoterica/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

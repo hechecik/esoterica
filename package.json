@@ -6,12 +6,13 @@
   "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "vite",
-    "build": "node tools/build-content.mjs && vite build",
+    "build": "node tools/build-content.mjs && vite build && node tools/post-build.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "content": "node tools/build-content.mjs",
-    "check": "svelte-check --tsconfig ./jsconfig.json"
+    "check": "svelte-check --tsconfig ./jsconfig.json",
+    "postinstall": "git submodule update --init --depth 1 || true"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
