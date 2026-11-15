@@ -17,11 +17,11 @@ Tarih: 2026-11-16 · Dal: `gorev/asama-1` (iki repoda da)
 - [x] İki kabul tablosu motorda birebir (hâkim, uzlaştırıcı, nakil ve işgal tespiti)
 - [x] Dış ağ isteği sıfır
 - [x] İlk açılış 30 KB gzip (hedef 300 KB altı)
-- [ ] GitHub Actions ile Pages yayını — iş akışı dosyası onay bekliyor
-- [ ] main'e merge — onay bekliyor
+- [x] GitHub Actions ile Pages yayını (ilk çalıştırma başarılı, 28 sn)
+- [x] main'e merge: site 309162f, içerik 241acac
 
 ## Bilinen eksikler / sonraki adım
 - Hücre başına 2 varyant/ton (hedef 4). Aşama 3'te içerik derinleştirme.
 - Kasa (şifreli kayıt) ve "iz bırakma" modu henüz yok; Aşama 5.
 - Kahve, tarot vb. ana sayfada "yakında".
-- Kullanıcının yapması gereken: Settings → Pages → Source: GitHub Actions (yapıldıysa atla).
+- Kullanıcının yapması gereken: siteyi tarayıcıdan açıp kontrol etmek (bu oturumun ağı github.io'ya erişemiyor); Dependabot'un bildirdiği 1 düşük seviyeli uyarıya bakmak.
