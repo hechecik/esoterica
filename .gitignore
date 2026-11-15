@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.vite/
+src/content/generated/
+*.log
+.DS_Store

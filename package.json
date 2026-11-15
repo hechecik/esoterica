@@ -1,0 +1,23 @@
+{
+  "name": "esoterica",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "dev": "vite",
+    "build": "node tools/build-content.mjs && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "content": "node tools/build-content.mjs",
+    "check": "svelte-check --tsconfig ./jsconfig.json"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "svelte": "^5.0.0",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0",
+    "yaml": "^2.6.0"
+  }
+}
