@@ -1,0 +1,128 @@
+/* Esoterica tasarım sistemi: gece seansı */
+
+@font-face { font-family: 'Cormorant'; font-weight: 400; font-style: normal; font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-ext-400-normal.woff2') format('woff2'); unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: 'Cormorant'; font-weight: 400; font-style: normal; font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Cormorant'; font-weight: 500; font-style: normal; font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-ext-500-normal.woff2') format('woff2'); unicode-range: U+0100-024F, U+0259, U+1E00-1EFF; }
+@font-face { font-family: 'Cormorant'; font-weight: 500; font-style: normal; font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Cormorant'; font-weight: 500; font-style: italic; font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-ext-500-italic.woff2') format('woff2'); unicode-range: U+0100-024F, U+0259, U+1E00-1EFF; }
+@font-face { font-family: 'Cormorant'; font-weight: 500; font-style: italic; font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-500-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Cormorant'; font-weight: 600; font-style: normal; font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-ext-600-normal.woff2') format('woff2'); unicode-range: U+0100-024F, U+0259, U+1E00-1EFF; }
+@font-face { font-family: 'Cormorant'; font-weight: 600; font-style: normal; font-display: swap;
+  src: url('/fonts/cormorant-garamond-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Plex'; font-weight: 400; font-display: swap;
+  src: url('/fonts/ibm-plex-sans-latin-ext-400-normal.woff2') format('woff2'); unicode-range: U+0100-024F, U+0259, U+1E00-1EFF; }
+@font-face { font-family: 'Plex'; font-weight: 400; font-display: swap;
+  src: url('/fonts/ibm-plex-sans-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Plex'; font-weight: 500; font-display: swap;
+  src: url('/fonts/ibm-plex-sans-latin-ext-500-normal.woff2') format('woff2'); unicode-range: U+0100-024F, U+0259, U+1E00-1EFF; }
+@font-face { font-family: 'Plex'; font-weight: 500; font-display: swap;
+  src: url('/fonts/ibm-plex-sans-latin-500-normal.woff2') format('woff2'); }
+
+:root {
+  --gece: #0b0d1f;
+  --murekkep: #1b1433;
+  --murekkep-2: #241a44;
+  --altin: #c9a24d;
+  --altin-acik: #e3c77a;
+  --altin-koyu: #8d6f2c;
+  --ay: #efe9dc;
+  --ay-soluk: #b9b2a7;
+  --sessiz: #7f7892;
+  --kum: #c8b79a;
+  --kum-koyu: #8c7a5c;
+  --cizgi: rgba(201, 162, 77, 0.22);
+
+  --serif: 'Cormorant', 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans: 'Plex', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --olcu: 1.25;
+  --t-0: 1rem;
+  --t-1: 1.25rem;
+  --t-2: 1.5625rem;
+  --t-3: 1.953rem;
+  --t-4: 2.441rem;
+  --t-5: 3.052rem;
+  --t-kucuk: 0.85rem;
+
+  --sutun: 42rem;
+  --kenar: clamp(1rem, 4vw, 2rem);
+  --yumusak: 10px;
+  --yay: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: dark; background: var(--gece); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  color: var(--ay);
+  font-family: var(--sans);
+  font-size: var(--t-0);
+  line-height: 1.55;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, var(--murekkep-2) 0%, transparent 60%),
+    var(--gece);
+  overflow-x: hidden;
+}
+h1, h2, h3 { font-family: var(--serif); font-weight: 500; line-height: 1.1; margin: 0; letter-spacing: 0.005em; }
+h1 { font-size: var(--t-4); }
+h2 { font-size: var(--t-3); }
+h3 { font-size: var(--t-2); }
+p { margin: 0; }
+a { color: var(--altin-acik); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 0.15em; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--altin-acik); outline-offset: 3px; border-radius: 4px; }
+
+.sayfa { position: relative; z-index: 1; max-width: var(--sutun); margin: 0 auto; padding: 0 var(--kenar) 6rem; }
+.okuma { font-family: var(--serif); font-size: var(--t-1); line-height: 1.6; max-width: 36rem; }
+.okuma p + p { margin-top: 1.1em; }
+.sessiz { color: var(--sessiz); }
+.kucuk { font-size: var(--t-kucuk); }
+
+/* Düğmeler */
+.dugme {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 2.75rem; padding: 0 1.25rem;
+  border-radius: var(--yumusak);
+  border: 1px solid var(--cizgi);
+  background: rgba(27, 20, 51, 0.6);
+  color: var(--ay);
+  cursor: pointer;
+  transition: border-color 160ms var(--yay), background 160ms var(--yay), transform 160ms var(--yay);
+}
+.dugme:hover { border-color: var(--altin); background: rgba(36, 26, 68, 0.8); }
+.dugme:active { transform: translateY(1px); }
+.dugme.asil { background: var(--altin); color: var(--gece); border-color: var(--altin); font-weight: 500; }
+.dugme.asil:hover { background: var(--altin-acik); border-color: var(--altin-acik); }
+.dugme.sade { background: transparent; border-color: transparent; color: var(--ay-soluk); }
+.dugme.sade:hover { color: var(--ay); border-color: var(--cizgi); background: transparent; }
+.dugme:disabled { opacity: 0.45; cursor: default; }
+
+/* Seçim çipleri */
+.cipler { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cip {
+  padding: 0.45rem 0.9rem; border-radius: 999px;
+  border: 1px solid var(--cizgi); background: transparent; color: var(--ay-soluk); cursor: pointer;
+  transition: all 160ms var(--yay);
+}
+.cip[aria-pressed="true"] { background: var(--altin); color: var(--gece); border-color: var(--altin); }
+.cip:hover:not([aria-pressed="true"]) { border-color: var(--altin); color: var(--ay); }
+
+/* Alan */
+.alan { width: 100%; padding: 0.75rem 1rem; border-radius: var(--yumusak); border: 1px solid var(--cizgi); background: rgba(11, 13, 31, 0.6); color: var(--ay); }
+.alan::placeholder { color: var(--sessiz); }
+
+/* Geçişler */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 420ms; animation-timing-function: var(--yay); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
