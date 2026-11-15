@@ -7,6 +7,11 @@ import { TOPIC_HOUSES, PERSON_HOUSES, rotateHouse, perfection } from '../remil/c
 import { seeded } from '../random/index.js';
 import { doldur, basHarf } from './turkce.js';
 
+const KISI_ADI = {
+  kendim: 'sen', kardes: 'kardeşin', ebeveyn: 'ebeveynin', cocuk: 'çocuğun', es: 'eşin', sevgili: 'sevgilin',
+  arkadas: 'arkadaşın', is_arkadasi: 'iş arkadaşın', baska: 'baktığın kişi',
+};
+
 const HANE_ADI = ['', 'birinci hane', 'ikinci hane', 'üçüncü hane', 'dördüncü hane', 'beşinci hane', 'altıncı hane',
   'yedinci hane', 'sekizinci hane', 'dokuzuncu hane', 'onuncu hane', 'on birinci hane', 'on ikinci hane'];
 
@@ -144,9 +149,13 @@ export function yorumla(chart, content, opts = {}) {
 
   // 4. Soran (1. hane ya da kişi hanesi)
   const soranF = chart.houses[soranHane - 1];
+  const baska = kisi !== 'kendim';
+  const kisiVars = (extra = {}) => sekilVars({ kisi: { text: KISI_ADI[kisi], opts: { ozel: false, kesme: false } }, ...extra });
   bolumler.push({
     tip: 'soran', hane: soranHane, sekil: soranF, metin: [
-      cumle(sec(isk.soran), sekilVars({ sekil: ad(content, soranF) })),
+      baska
+        ? cumle(sec(isk.soran_baska), kisiVars({ sekil: ad(content, soranF), hane: { text: HANE_ADI[soranHane], opts: { ozel: false, kesme: false } } }))
+        : cumle(sec(isk.soran), sekilVars({ sekil: ad(content, soranF) })),
       hucre(soranF, 1),
     ],
   });
@@ -154,7 +163,9 @@ export function yorumla(chart, content, opts = {}) {
   // 5. Soru hanesi (ana + varsa ikincil hane)
   const soruF = chart.houses[soruHane - 1];
   const soruMetin = [
-    cumle(sec(isk.soru), sekilVars({ sekil: ad(content, soruF) })),
+    baska
+      ? cumle(sec(isk.soru_baska), kisiVars({ sekil: ad(content, soruF), hane: { text: HANE_ADI[soruHane], opts: { ozel: false, kesme: false } } }))
+      : cumle(sec(isk.soru), sekilVars({ sekil: ad(content, soruF) })),
     hucre(soruF, TOPIC_HOUSES[konu][0]),
   ];
   if (TOPIC_HOUSES[konu][1]) {
