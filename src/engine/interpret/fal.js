@@ -37,8 +37,9 @@ function tarotKartMetni(kart, ters, c, konu, rng) {
   const s = c.seriler[kart.seri];
   const r = c.rutbeler[kart.rutbe];
   const ana = ters ? kart.veri.ters : kart.veri.duz;
-  const ek = konu === 'ask' ? s.ask : konu === 'is' ? s.is : `${s.ad} (${s.element}): ${s.tema}. ${r.ad}: ${r.tema}.`;
-  return { ana, ek, anahtar: `${s.tema}; ${r.tema}` };
+  const v = kart.veri;
+  const ek = konu === 'ask' ? (v.ask ?? s.ask) : konu === 'is' ? (v.is ?? s.is) : `${s.ad} (${s.element}): ${s.tema}. ${r.ad}: ${r.tema}.`;
+  return { ana, ek, ogut: v.ogut, anahtar: `${s.tema}; ${r.tema}` };
 }
 
 /**
@@ -143,7 +144,7 @@ export function ichingYorum(okuma, c) {
   const birincil = { ...bul(b.no), alt: c.ucluler[b.alt], ust: c.ucluler[b.ust], cizgiler: b.cizgiler };
   const donusen = okuma.donusen ? { ...bul(okuma.donusen.no), alt: c.ucluler[okuma.donusen.alt], ust: c.ucluler[okuma.donusen.ust], cizgiler: okuma.donusen.cizgiler } : null;
   const imge = `Alt üçlü ${birincil.alt.ad} (${birincil.alt.nitelik}), üst üçlü ${birincil.ust.ad} (${birincil.ust.nitelik}).`;
-  const degisen = okuma.degisen.map((i) => ({ cizgi: i, metin: c.cizgi_konumu[i] }));
+  const degisen = okuma.degisen.map((i) => ({ cizgi: i, soz: c.cizgiler?.[b.no]?.[i - 1] ?? null, metin: c.cizgi_konumu[i] }));
   return { birincil, donusen, imge, degisenSayisi: c.degisen_sayisi[okuma.degisen.length], degisen };
 }
 
@@ -253,18 +254,25 @@ const KISA_EK = new Set(['', 'e', 'a', 'i', 'ı', 'u', 'ü', 'de', 'da', 'te', '
  * "yılanı", "yılanlar" -> yılan. Çok kısa adlar (3 harften az) yalnızca tam eşleşir.
  */
 export function ruyaMetindenBul(liste, metin) {
-  const kelimeler = katla(metin).split(/[^a-zçğıöşü]+/).filter(Boolean);
-  const bulunan = [];
+  const duz = katla(metin);
+  const kelimeler = duz.split(/[^a-zçğıöşü]+/).filter(Boolean);
+  const bulunan = new Set();
+  const tekler = []; // [ad, key, puan] — kendi adı eş anlamlıdan önce gelir
   for (const s of liste) {
-    const adlar = [s.ad, ...(s.es ?? [])].map(katla);
-    const tutar = adlar.some((ad) => {
+    for (const [i, ad] of [s.ad, ...(s.es ?? [])].map(katla).entries()) {
       const parca = ad.split(/[^a-zçğıöşü]+/).filter(Boolean);
-      if (parca.length > 1) return katla(metin).includes(ad);
-      const a = parca[0];
-      if (!a) return false;
-      return kelimeler.some((k) => (a.length < 3 ? k.startsWith(a) && KISA_EK.has(k.slice(a.length)) : k.startsWith(a) && k.length - a.length <= 5));
-    });
-    if (tutar) bulunan.push(s.key);
+      if (parca.length > 1) { if (duz.includes(parca.join(' '))) bulunan.add(s.key); }
+      else if (parca[0]) tekler.push([parca[0], s.key, parca[0].length + (i === 0 ? 0.5 : 0)]);
+    }
   }
-  return bulunan;
+  // Her kelime için en uzun eşleşen ad kazanır ("ayı" -> ayı, ay değil).
+  for (const k of kelimeler) {
+    let en = null;
+    for (const [a, key, puan] of tekler) {
+      const tutar = a.length < 3 ? k.startsWith(a) && KISA_EK.has(k.slice(a.length)) : k.startsWith(a) && k.length - a.length <= 5;
+      if (tutar && (!en || puan > en[0])) en = [puan, key];
+    }
+    if (en) bulunan.add(en[1]);
+  }
+  return liste.filter((s) => bulunan.has(s.key)).map((s) => s.key);
 }

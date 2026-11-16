@@ -105,7 +105,13 @@
       </section>
       <section class="blok">
         <p class="okuma sessiz">{yorum.degisenSayisi}</p>
-        {#each yorum.degisen as d}<p class="okuma">{d.metin}</p>{/each}
+        {#each yorum.degisen as d}
+          <div class="cizgi-soz">
+            <h3>{['Birinci', 'İkinci', 'Üçüncü', 'Dördüncü', 'Beşinci', 'Altıncı'][d.cizgi - 1]} çizgi</h3>
+            {#if d.soz}<p class="okuma">{d.soz}</p>{/if}
+            <p class="okuma sessiz">{d.metin}</p>
+          </div>
+        {/each}
       </section>
       {#if yorum.donusen}
         <section class="blok">
@@ -114,7 +120,7 @@
           <p class="ogut">{yorum.donusen.ogut}</p>
         </section>
       {/if}
-      <p class="kucuk sessiz">Heksagram adları ve anlamları klasik metnin özgün Türkçe yorumudur, çeviri değildir. Çizgi metinleri bu sürümde çizginin konumuna göre genel olarak okunur.</p>
+      <p class="kucuk sessiz">Heksagram adları, anlamları ve çizgi sözleri klasik metnin özgün Türkçe yorumudur, çeviri değildir.</p>
       <div class="eylem"><button class="dugme" onclick={yeniden}>Yeni soru</button></div>
     </article>
   {/if}
@@ -153,6 +159,8 @@
   .heks { width: 7rem; fill: var(--altin); overflow: visible; }
   .heks .nokta { fill: var(--ay); }
   .ok { color: var(--altin-koyu); font-size: var(--t-3); }
+  .cizgi-soz { display: grid; gap: 0.3rem; }
+  .cizgi-soz h3 { font-size: var(--t-0); font-family: var(--sans); color: var(--altin-koyu); font-weight: 500; }
   .blok { display: grid; gap: 0.6rem; border-left: 2px solid var(--altin-koyu); padding-left: 1rem; }
   h2 { font-size: var(--t-2); color: var(--altin); }
   .ogut { font-family: var(--serif); font-style: italic; color: var(--altin-acik); font-size: var(--t-1); }

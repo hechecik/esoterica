@@ -22,17 +22,21 @@
     '/kahve': () => import('./modules/kahve/Kahve.svelte'),
     '/ruya': () => import('./modules/ruya/Ruya.svelte'),
     '/sayilar': () => import('./modules/sayilar/Sayilar.svelte'),
+    '/deste': () => import('./modules/kartfal/Deste.svelte'),
   };
-  let tembel = $state(null);
+  const anahtar = (p) => (p.startsWith('/deste') ? '/deste' : p);
+  // Yüklenen bileşen hangi yol için yüklendiyse yalnızca o yolda gösterilir;
+  // böylece yol değişirken eski modül yeni yolla bir an bile kurulmaz.
+  let tembel = $state(null); // { yol, bilesen }
   $effect(() => {
-    const yukle = MODULLER[router.path];
-    tembel = null;
-    if (yukle) yukle().then((m) => (tembel = m.default));
+    const yol = router.path;
+    const yukle = MODULLER[anahtar(yol)];
+    if (yukle) yukle().then((m) => { if (router.path === yol) tembel = { yol, bilesen: m.default }; });
   });
   const Sayfa = $derived(
     router.path.startsWith('/remil') ? Remil :
     router.path === '/gizlilik' ? Gizlilik :
-    MODULLER[router.path] ? tembel : Ana,
+    MODULLER[anahtar(router.path)] ? (tembel?.yol === router.path ? tembel.bilesen : null) : Ana,
   );
 </script>
 
