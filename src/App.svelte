@@ -4,6 +4,11 @@
   import Ana from './app/Ana.svelte';
   import Gizlilik from './app/Gizlilik.svelte';
   import Remil from './modules/remil/Remil.svelte';
+  import { kisi } from './app/kisi.svelte.js';
+  import { kasa } from './engine/store/kasa.js';
+
+  // Kasa açıksa kişi bilgisi değiştikçe şifreli olarak yeniden yazılır; kapalıysa hiçbir şey saklanmaz.
+  kisi.dinle(() => { if (kasa.acik) kasa.kaydet($state.snapshot(kisi.disaAktar())).catch(() => {}); });
 
   // Modüller tembel yüklenir: ilk açılış küçük kalır
   const MODULLER = {
