@@ -1,4 +1,21 @@
 <script>
+  import FalKarti from '../ui/FalKarti.svelte';
+  import { seeded } from '../engine/random/index.js';
+
+  // Günün kartı: herkes için aynı gün aynı kart (tarihten tohum), cihazda seçilir.
+  const gun = new Date().toLocaleDateString('sv-SE');
+  let gunKart = $state(null);
+  let acik = $state(false);
+  let mesaj = $state(null);
+  async function cevir() {
+    if (acik) return;
+    const [{ default: c }, { tarotDeste }] = await Promise.all([import('../content/generated/tarot.json'), import('../engine/interpret/fal.js')]);
+    const deste = tarotDeste(c);
+    const r = seeded(`gunun-karti|${gun}`);
+    gunKart = deste[r.int(deste.length)];
+    mesaj = gunKart.buyuk ? r.pick(gunKart.veri.duz) : gunKart.veri.duz;
+    requestAnimationFrame(() => requestAnimationFrame(() => (acik = true)));
+  }
   const fallar = [
     { yol: '#/gunluk', ad: 'Bugünün göğü', alt: 'Ay nerede, sana ne fısıldıyor. Her gün yeniden.' },
     { yol: '#/kahve', ad: 'Kahve falı', alt: 'Fincanın dibi, kenarı, sapı ve tabak. Gördüğünü söyle, okuyalım.' },
@@ -15,8 +32,21 @@
 </script>
 
 <section class="giris">
-  <h1>Gece seansı açık.</h1>
-  <p class="okuma sessiz">Soru sende, cevap kumda. Burada baktığın hiçbir fal cihazından çıkmaz; ne soru, ne doğum tarihi, ne sonuç.</p>
+  <div class="metin">
+    <h1>Gece seansı açık.</h1>
+    <p class="okuma sessiz">Soru sende, cevap kumda. Burada baktığın hiçbir fal cihazından çıkmaz; ne soru, ne doğum tarihi, ne sonuç.</p>
+  </div>
+  <div class="gunun">
+    <button class="gunun-kart" onclick={cevir} aria-label={acik ? `Günün kartı: ${gunKart?.ad}` : 'Günün kartını çevir'}>
+      <FalKarti tur="tarot" kart={gunKart} {acik} boyut="buyuk" />
+    </button>
+    {#if acik && gunKart}
+      <p class="gunun-metin"><span class="sessiz kucuk">Günün kartı · {gunKart.ad}</span><br />{mesaj}</p>
+      <a class="kucuk" href="#/tarot">Kendi açılımını yap</a>
+    {:else}
+      <p class="sessiz kucuk">Günün kartı. Çevirmek için dokun.</p>
+    {/if}
+  </div>
 </section>
 
 <ul class="liste" aria-label="Fal türleri">
@@ -31,7 +61,14 @@
 </ul>
 
 <style>
-  .giris { padding: 3rem 0 2.5rem; }
+  .giris { padding: 2.5rem 0 2.5rem; display: grid; gap: 2rem; align-items: center; }
+  @media (min-width: 40rem) { .giris { grid-template-columns: 1fr auto; } }
+  .gunun { display: grid; justify-items: center; gap: 0.7rem; text-align: center; max-width: 16rem; margin: 0 auto; }
+  .gunun-kart { padding: 0; border: 0; background: none; cursor: pointer; border-radius: 8px; animation: suzul 6s ease-in-out infinite; }
+  .gunun-kart:hover { animation-play-state: paused; }
+  @keyframes suzul { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-6px) rotate(1deg); } }
+  .gunun-metin { font-family: var(--serif); font-size: var(--t-0); line-height: 1.45; animation: belir 900ms 500ms var(--yay) both; }
+  @keyframes belir { from { opacity: 0; transform: translateY(6px); } }
   .giris h1 { margin-bottom: 1rem; }
   .liste { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
   .liste li:first-child { grid-column: 1 / -1; }

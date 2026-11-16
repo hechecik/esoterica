@@ -116,6 +116,7 @@
       {#if T.ters > 0}
         <label class="tik"><input type="checkbox" bind:checked={tersKullan} /> Ters gelenleri de oku</label>
       {/if}
+      <p class="kucuk"><a href="#/deste/{tur}">Desteyi tanı: bütün kartlar ve anlamları</a></p>
       <p class="kucuk sessiz">Sorunu içinden geçir. Yazmana gerek yok; yazsan bile hiçbir yere gitmez.</p>
       <div><button class="dugme asil" onclick={karistirVeBasla}>Karıştır</button></div>
     </div>
