@@ -22,9 +22,9 @@ export function karistir(dizi, rnd = kriptoTam) {
   return a;
 }
 
-/** Desteden n kart çeker; tersOlasiligi 0 ise hiç ters çıkmaz. */
+/** Desteden n kart çeker -> [{kart, ters}]; tersOlasiligi 0 ise hiç ters çıkmaz. */
 export function kartCek(kartlar, n, { tersOlasiligi = 0, rnd = kriptoTam } = {}) {
-  return karistir(kartlar, rnd).slice(0, n).map((k) => ({ ...k, ters: tersOlasiligi > 0 && rnd(1000) < tersOlasiligi * 1000 }));
+  return karistir(kartlar, rnd).slice(0, n).map((kart) => ({ kart, ters: tersOlasiligi > 0 && rnd(1000) < tersOlasiligi * 1000 }));
 }
 
 /* ---------- I Ching ---------- */

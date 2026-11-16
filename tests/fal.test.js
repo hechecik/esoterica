@@ -21,7 +21,7 @@ describe('deste', () => {
   it('kart çekme: tekrar yok, ters olasılığı', () => {
     const k = Array.from({ length: 78 }, (_, i) => ({ id: i }));
     const c = kartCek(k, 10, { tersOlasiligi: 0.5, rnd: rndTohum('y') });
-    expect(new Set(c.map((x) => x.id)).size).toBe(10);
+    expect(new Set(c.map((x) => x.kart.id)).size).toBe(10);
     expect(kartCek(k, 10, { rnd: rndTohum('z') }).every((x) => !x.ters)).toBe(true);
   });
 });
