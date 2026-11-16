@@ -1,7 +1,8 @@
 <script>
   const fallar = [
+    { yol: '#/gunluk', ad: 'Bugünün göğü', alt: 'Ay nerede, sana ne fısıldıyor. Her gün yeniden.', hazir: true },
     { yol: '#/remil', ad: 'Remil', alt: 'Kumda on altı satır, bir hâkim. İlm-i remil.', hazir: true },
-    { ad: 'Doğum haritası', alt: 'Doğduğun anın göğü, gezegenler ve evler.', hazir: false },
+    { yol: '#/harita', ad: 'Doğum haritası', alt: 'Doğduğun anın göğü, gezegenler ve evler.', hazir: true },
     { ad: 'Tarot', alt: 'Yetmiş sekiz kart, bir soru.', hazir: false },
     { ad: 'Kahve falı', alt: 'Fincanın dibi, kenarı, sapı ve tabak.', hazir: false },
     { ad: 'I Ching', alt: 'Üç para, altı çizgi, altmış dört heksagram.', hazir: false },

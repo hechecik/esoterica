@@ -141,6 +141,43 @@ function buildRemil(sema) {
   return out;
 }
 
+const BURC_KEYS = ['koc', 'boga', 'ikizler', 'yengec', 'aslan', 'basak', 'terazi', 'akrep', 'yay', 'oglak', 'kova', 'balik'];
+const GEZ10 = ['gunes', 'ay', 'merkur', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptun', 'pluton'];
+
+function buildAstro() {
+  const dir = join(CONTENT, 'astroloji');
+  if (!existsSync(dir)) { warn('astroloji/ yok'); return null; }
+  const strip = (d) => { if (!d) return d; const { kaynak, lang, ...rest } = d; return rest; };
+  const out = {
+    burclar: strip(loadYaml(join(dir, 'burclar.yaml')))?.burclar,
+    gezegenBurc: strip(loadYaml(join(dir, 'gezegen-burc.yaml'))),
+    gezegenEv: strip(loadYaml(join(dir, 'gezegen-ev.yaml'))),
+    acilar: strip(loadYaml(join(dir, 'acilar.yaml'))),
+    sentez: strip(loadYaml(join(dir, 'sentez.yaml'))),
+    transit: strip(loadYaml(join(dir, 'transit.yaml'))),
+  };
+  for (const b of BURC_KEYS) {
+    const d = out.burclar?.[b];
+    if (!d) { fail(`astroloji: burç yok ${b}`); continue; }
+    for (const k of ['portre', 'gunes', 'ay', 'yukselen', 'mc']) if (countList(d[k]) < 2) warn(`astroloji: ${b}.${k} ${countList(d[k])} < 2`);
+  }
+  for (const [g, burclar] of Object.entries(out.gezegenBurc?.gezegenler ?? {})) {
+    for (const b of BURC_KEYS) if (!countList(burclar[b])) fail(`astroloji: ${g} ${b} burcunda metin yok`);
+  }
+  for (const [g, evler] of Object.entries(out.gezegenEv?.gezegenler ?? {})) {
+    for (let h = 1; h <= 12; h++) if (!countList(evler[h])) fail(`astroloji: ${g} ${h}. evde metin yok`);
+  }
+  for (let i = 0; i < GEZ10.length; i++) for (let j = i + 1; j < GEZ10.length; j++) {
+    const c = out.acilar?.ciftler?.[`${GEZ10[i]}-${GEZ10[j]}`];
+    if (!c) { fail(`astroloji: açı çifti yok ${GEZ10[i]}-${GEZ10[j]}`); continue; }
+    for (const t of ['kavusum', 'uyumlu', 'gergin']) if (!c[t]) fail(`astroloji: ${GEZ10[i]}-${GEZ10[j]} ${t} yok`);
+  }
+  let n = 0;
+  for (const [, str] of strings(out)) if (str.length >= 20) n++;
+  out.stats = { cumle: n };
+  return out;
+}
+
 function buildOrtak() {
   const tonlar = loadYaml(join(CONTENT, 'ortak', 'tonlar.yaml'));
   if (!tonlar) return null;
@@ -162,10 +199,13 @@ function main() {
 
   writeFileSync(join(OUT, 'remil.json'), JSON.stringify(remil));
   writeFileSync(join(OUT, 'ortak.json'), JSON.stringify(ortak));
+  const astro = buildAstro();
+  if (astro) writeFileSync(join(OUT, 'astroloji.json'), JSON.stringify(astro));
 
   const report = {
     tarih: new Date().toISOString(),
     remil: remil.stats,
+    astroloji: astro?.stats,
     uyari: warnings.length,
     hata: errors.length,
   };
@@ -174,6 +214,7 @@ function main() {
   for (const w of warnings) console.warn('UYARI', w);
   for (const e of errors) console.error('HATA', e);
   console.log(`remil: ${remil.stats.sekil} şekil, ${remil.stats.hucre} hücre, ${remil.stats.hucreVaryant} hücre varyantı, ${remil.stats.toplamCumle} benzersiz cümle, iskelet kombinasyonu ~${remil.stats.iskeletKombinasyon.toLocaleString('tr-TR')}`);
+  if (astro) console.log(`astroloji: ${astro.stats.cumle} metin`);
   console.log(`${warnings.length} uyarı, ${errors.length} hata`);
   if (errors.length) process.exit(1);
 }

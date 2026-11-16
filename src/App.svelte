@@ -5,9 +5,21 @@
   import Gizlilik from './app/Gizlilik.svelte';
   import Remil from './modules/remil/Remil.svelte';
 
+  // Modüller tembel yüklenir: ilk açılış küçük kalır
+  const MODULLER = {
+    '/harita': () => import('./modules/harita/Harita.svelte'),
+    '/gunluk': () => import('./modules/gunluk/Gunluk.svelte'),
+  };
+  let tembel = $state(null);
+  $effect(() => {
+    const yukle = MODULLER[router.path];
+    tembel = null;
+    if (yukle) yukle().then((m) => (tembel = m.default));
+  });
   const sayfa = $derived(
     router.path.startsWith('/remil') ? Remil :
-    router.path === '/gizlilik' ? Gizlilik : Ana,
+    router.path === '/gizlilik' ? Gizlilik :
+    MODULLER[router.path] ? tembel : Ana,
   );
 </script>
 
@@ -23,7 +35,11 @@
 
 <main class="sayfa">
   {#key router.path}
-    <svelte:component this={sayfa} />
+    {#if sayfa}
+      <svelte:component this={sayfa} />
+    {:else}
+      <p class="sessiz yukleniyor">Açılıyor…</p>
+    {/if}
   {/key}
 </main>
 

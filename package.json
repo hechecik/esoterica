@@ -6,11 +6,11 @@
   "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "vite",
-    "build": "node tools/build-content.mjs && vite build && node tools/post-build.mjs",
+    "build": "npm run content && vite build && node tools/post-build.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "content": "node tools/build-content.mjs",
+    "content": "node tools/build-content.mjs && node tools/build-cities.mjs",
     "check": "svelte-check --tsconfig ./jsconfig.json",
     "postinstall": "git submodule update --init --depth 1 || true"
   },
