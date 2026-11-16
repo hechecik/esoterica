@@ -141,6 +141,132 @@ function buildRemil(sema) {
   return out;
 }
 
+const BURC_KEYS = ['koc', 'boga', 'ikizler', 'yengec', 'aslan', 'basak', 'terazi', 'akrep', 'yay', 'oglak', 'kova', 'balik'];
+const GEZ10 = ['gunes', 'ay', 'merkur', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptun', 'pluton'];
+
+function buildAstro() {
+  const dir = join(CONTENT, 'astroloji');
+  if (!existsSync(dir)) { warn('astroloji/ yok'); return null; }
+  const strip = (d) => { if (!d) return d; const { kaynak, lang, ...rest } = d; return rest; };
+  const out = {
+    burclar: strip(loadYaml(join(dir, 'burclar.yaml')))?.burclar,
+    gezegenBurc: strip(loadYaml(join(dir, 'gezegen-burc.yaml'))),
+    gezegenEv: strip(loadYaml(join(dir, 'gezegen-ev.yaml'))),
+    acilar: strip(loadYaml(join(dir, 'acilar.yaml'))),
+    sentez: strip(loadYaml(join(dir, 'sentez.yaml'))),
+    transit: strip(loadYaml(join(dir, 'transit.yaml'))),
+  };
+  for (const b of BURC_KEYS) {
+    const d = out.burclar?.[b];
+    if (!d) { fail(`astroloji: burç yok ${b}`); continue; }
+    for (const k of ['portre', 'gunes', 'ay', 'yukselen', 'mc']) if (countList(d[k]) < 2) warn(`astroloji: ${b}.${k} ${countList(d[k])} < 2`);
+  }
+  for (const [g, burclar] of Object.entries(out.gezegenBurc?.gezegenler ?? {})) {
+    for (const b of BURC_KEYS) if (!countList(burclar[b])) fail(`astroloji: ${g} ${b} burcunda metin yok`);
+  }
+  for (const [g, evler] of Object.entries(out.gezegenEv?.gezegenler ?? {})) {
+    for (let h = 1; h <= 12; h++) if (!countList(evler[h])) fail(`astroloji: ${g} ${h}. evde metin yok`);
+  }
+  for (let i = 0; i < GEZ10.length; i++) for (let j = i + 1; j < GEZ10.length; j++) {
+    const c = out.acilar?.ciftler?.[`${GEZ10[i]}-${GEZ10[j]}`];
+    if (!c) { fail(`astroloji: açı çifti yok ${GEZ10[i]}-${GEZ10[j]}`); continue; }
+    for (const t of ['kavusum', 'uyumlu', 'gergin']) if (!c[t]) fail(`astroloji: ${GEZ10[i]}-${GEZ10[j]} ${t} yok`);
+  }
+  let n = 0;
+  for (const [, str] of strings(out)) if (str.length >= 20) n++;
+  out.stats = { cumle: n };
+  return out;
+}
+
+
+/* ---------- Diğer fallar ---------- */
+
+const RUTBE = Array.from({ length: 14 }, (_, i) => i + 1);
+function yukle(modul, dosya) {
+  const p = join(CONTENT, modul, dosya);
+  if (!existsSync(p)) { fail(`${modul}/${dosya} yok`); return null; }
+  const d = loadYaml(p);
+  if (!d) return null;
+  const { kaynak, lang, ...rest } = d;
+  return { ...rest, kaynak };
+}
+function benzersizKey(liste, ad) {
+  const g = new Set();
+  for (const x of liste ?? []) {
+    if (!x.key) fail(`${ad}: key eksik (${x.ad})`);
+    if (g.has(x.key)) fail(`${ad}: tekrar eden key ${x.key}`);
+    g.add(x.key);
+  }
+}
+function metinSay(o) { let n = 0; for (const [, s] of strings(o)) if (s.length >= 20) n++; return n; }
+
+function buildFal() {
+  const out = {};
+  const tarot = yukle('tarot', 'kartlar.yaml');
+  const tarotA = yukle('tarot', 'acilimlar.yaml');
+  if (tarot && tarotA) {
+    if (countList(tarot.buyuk) !== 22) fail(`tarot: büyük arkana ${countList(tarot.buyuk)} != 22`);
+    benzersizKey(tarot.buyuk, 'tarot');
+    for (const k of tarot.buyuk) for (const a of ['duz', 'ters']) if (countList(k[a]) < 2) fail(`tarot: ${k.key}.${a} < 2`);
+    for (const s of Object.keys(tarot.seriler)) for (const r of RUTBE) {
+      const c = tarot.kucuk?.[s]?.[r];
+      if (!c?.duz || !c?.ters) fail(`tarot: küçük arkana ${s}-${r} eksik`);
+    }
+    out.tarot = { ...tarot, ...tarotA, kaynak: tarot.kaynak };
+  }
+  const len = yukle('lenormand', 'kartlar.yaml');
+  if (len) {
+    if (countList(len.kartlar) !== 36) fail(`lenormand: ${countList(len.kartlar)} != 36`);
+    benzersizKey(len.kartlar, 'lenormand');
+    for (const k of len.kartlar) if (!k.konu || !k.nitelik || countList(k.anlam) < 1) fail(`lenormand: ${k.key} eksik`);
+    out.lenormand = len;
+  }
+  const run = yukle('run', 'runler.yaml');
+  if (run) {
+    if (countList(run.runler) !== 25) fail(`run: ${countList(run.runler)} != 25`);
+    benzersizKey(run.runler, 'run');
+    for (const r of run.runler) if (!r.duz || (r.ters_olur && !r.ters)) fail(`run: ${r.key} eksik`);
+    out.run = run;
+  }
+  const isk = yukle('iskambil', 'kartlar.yaml');
+  if (isk) {
+    for (let i = 1; i <= 13; i++) if (!isk.sayilar?.[i]) fail(`iskambil: sayı ${i} yok`);
+    out.iskambil = isk;
+  }
+  const ic = yukle('iching', 'heksagramlar.yaml');
+  if (ic) {
+    const nolar = new Set((ic.heksagramlar ?? []).map((h) => h.no));
+    for (let i = 1; i <= 64; i++) if (!nolar.has(i)) fail(`iching: heksagram ${i} yok`);
+    for (let i = 1; i <= 6; i++) if (!ic.cizgi_konumu?.[i]) fail(`iching: çizgi konumu ${i} yok`);
+    out.iching = ic;
+  }
+  const kahve = yukle('kahve', 'semboller.yaml');
+  if (kahve) {
+    benzersizKey(kahve.semboller, 'kahve');
+    for (const s of kahve.semboller) if (!s.anlam || ![-1, 0, 1].includes(s.ton)) fail(`kahve: ${s.key} eksik`);
+    if (countList(kahve.semboller) < 100) warn(`kahve: ${countList(kahve.semboller)} sembol < 100`);
+    out.kahve = kahve;
+  }
+  const ruya = yukle('ruya', 'sozluk.yaml');
+  if (ruya) {
+    benzersizKey(ruya.semboller, 'ruya');
+    for (const s of ruya.semboller) if (!s.gelenek || !s.ic) fail(`ruya: ${s.key} eksik`);
+    if (countList(ruya.semboller) < 100) warn(`ruya: ${countList(ruya.semboller)} sembol < 100`);
+    out.ruya = ruya;
+  }
+  const num = yukle('numeroloji', 'sayilar.yaml');
+  if (num) {
+    for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33]) if (!num.sayilar?.[n]?.portre) fail(`numeroloji: ${n} yok`);
+    out.numeroloji = num;
+  }
+  const yz = yukle('yildizname', 'yildizlar.yaml');
+  if (yz) { for (const b of BURC_KEYS) if (!yz.yildizlar?.[b]) fail(`yildizname: ${b} yok`); out.yildizname = yz; }
+  const cin = yukle('cin', 'burclar.yaml');
+  if (cin) { if (Object.keys(cin.hayvanlar ?? {}).length !== 12) fail('cin: 12 hayvan değil'); out.cin = cin; }
+  for (const k of Object.keys(out)) out[k].stats = { metin: metinSay(out[k]) };
+  return out;
+}
+
 function buildOrtak() {
   const tonlar = loadYaml(join(CONTENT, 'ortak', 'tonlar.yaml'));
   if (!tonlar) return null;
@@ -162,10 +288,17 @@ function main() {
 
   writeFileSync(join(OUT, 'remil.json'), JSON.stringify(remil));
   writeFileSync(join(OUT, 'ortak.json'), JSON.stringify(ortak));
+  const astro = buildAstro();
+  if (astro) writeFileSync(join(OUT, 'astroloji.json'), JSON.stringify(astro));
+
+  const fal = buildFal();
+  for (const [k, v] of Object.entries(fal)) writeFileSync(join(OUT, `${k}.json`), JSON.stringify(v));
 
   const report = {
     tarih: new Date().toISOString(),
     remil: remil.stats,
+    astroloji: astro?.stats,
+    fal: Object.fromEntries(Object.entries(fal).map(([k, v]) => [k, v.stats])),
     uyari: warnings.length,
     hata: errors.length,
   };
@@ -174,6 +307,8 @@ function main() {
   for (const w of warnings) console.warn('UYARI', w);
   for (const e of errors) console.error('HATA', e);
   console.log(`remil: ${remil.stats.sekil} şekil, ${remil.stats.hucre} hücre, ${remil.stats.hucreVaryant} hücre varyantı, ${remil.stats.toplamCumle} benzersiz cümle, iskelet kombinasyonu ~${remil.stats.iskeletKombinasyon.toLocaleString('tr-TR')}`);
+  if (astro) console.log(`astroloji: ${astro.stats.cumle} metin`);
+  console.log('fallar: ' + Object.entries(fal).map(([k, v]) => `${k} ${v.stats.metin}`).join(', '));
   console.log(`${warnings.length} uyarı, ${errors.length} hata`);
   if (errors.length) process.exit(1);
 }

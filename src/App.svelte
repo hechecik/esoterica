@@ -4,10 +4,35 @@
   import Ana from './app/Ana.svelte';
   import Gizlilik from './app/Gizlilik.svelte';
   import Remil from './modules/remil/Remil.svelte';
+  import { kisi } from './app/kisi.svelte.js';
+  import { kasa } from './engine/store/kasa.js';
 
-  const sayfa = $derived(
+  // Kasa açıksa kişi bilgisi değiştikçe şifreli olarak yeniden yazılır; kapalıysa hiçbir şey saklanmaz.
+  kisi.dinle(() => { if (kasa.acik) kasa.kaydet($state.snapshot(kisi.disaAktar())).catch(() => {}); });
+
+  // Modüller tembel yüklenir: ilk açılış küçük kalır
+  const MODULLER = {
+    '/harita': () => import('./modules/harita/Harita.svelte'),
+    '/gunluk': () => import('./modules/gunluk/Gunluk.svelte'),
+    '/tarot': () => import('./modules/kartfal/KartFali.svelte'),
+    '/lenormand': () => import('./modules/kartfal/KartFali.svelte'),
+    '/run': () => import('./modules/kartfal/KartFali.svelte'),
+    '/iskambil': () => import('./modules/kartfal/KartFali.svelte'),
+    '/iching': () => import('./modules/iching/IChing.svelte'),
+    '/kahve': () => import('./modules/kahve/Kahve.svelte'),
+    '/ruya': () => import('./modules/ruya/Ruya.svelte'),
+    '/sayilar': () => import('./modules/sayilar/Sayilar.svelte'),
+  };
+  let tembel = $state(null);
+  $effect(() => {
+    const yukle = MODULLER[router.path];
+    tembel = null;
+    if (yukle) yukle().then((m) => (tembel = m.default));
+  });
+  const Sayfa = $derived(
     router.path.startsWith('/remil') ? Remil :
-    router.path === '/gizlilik' ? Gizlilik : Ana,
+    router.path === '/gizlilik' ? Gizlilik :
+    MODULLER[router.path] ? tembel : Ana,
   );
 </script>
 
@@ -23,7 +48,11 @@
 
 <main class="sayfa">
   {#key router.path}
-    <svelte:component this={sayfa} />
+    {#if Sayfa}
+      <Sayfa />
+    {:else}
+      <p class="sessiz yukleniyor">Açılıyor…</p>
+    {/if}
   {/key}
 </main>
 
