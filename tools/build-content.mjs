@@ -212,6 +212,12 @@ function buildFal() {
       const c = tarot.kucuk?.[s]?.[r];
       if (!c?.duz || !c?.ters) fail(`tarot: küçük arkana ${s}-${r} eksik`);
     }
+    const ek = yukle('tarot', 'kucuk-ek.yaml');
+    for (const s of Object.keys(tarot.seriler)) for (const r of RUTBE) {
+      const e = ek?.kucuk_ek?.[s]?.[r];
+      if (!e?.ask || !e?.is || !e?.ogut) fail(`tarot: küçük arkana ek ${s}-${r} eksik`);
+      else Object.assign(tarot.kucuk[s][r], e);
+    }
     out.tarot = { ...tarot, ...tarotA, kaynak: tarot.kaynak };
   }
   const len = yukle('lenormand', 'kartlar.yaml');
@@ -231,6 +237,9 @@ function buildFal() {
   const isk = yukle('iskambil', 'kartlar.yaml');
   if (isk) {
     for (let i = 1; i <= 13; i++) if (!isk.sayilar?.[i]) fail(`iskambil: sayı ${i} yok`);
+    const tum = yukle('iskambil', 'tum-kartlar.yaml')?.kartlar ?? {};
+    for (const r of Object.keys(isk.renkler)) for (let i = 1; i <= 13; i++) if (!tum[`${r}-${i}`]) fail(`iskambil: ${r}-${i} metni yok`);
+    isk.ozel = { ...isk.ozel, ...tum };
     out.iskambil = isk;
   }
   const ic = yukle('iching', 'heksagramlar.yaml');
@@ -238,20 +247,28 @@ function buildFal() {
     const nolar = new Set((ic.heksagramlar ?? []).map((h) => h.no));
     for (let i = 1; i <= 64; i++) if (!nolar.has(i)) fail(`iching: heksagram ${i} yok`);
     for (let i = 1; i <= 6; i++) if (!ic.cizgi_konumu?.[i]) fail(`iching: çizgi konumu ${i} yok`);
+    ic.cizgiler = {};
+    for (const f of listYaml(join(CONTENT, 'iching')).filter((f) => basename(f).startsWith('cizgiler'))) Object.assign(ic.cizgiler, loadYaml(f)?.cizgiler ?? {});
+    for (let i = 1; i <= 64; i++) {
+      const c6 = ic.cizgiler[i];
+      if (countList(c6) !== 6) fail(`iching: heksagram ${i} çizgi sayısı ${countList(c6)} != 6`);
+    }
     out.iching = ic;
   }
   const kahve = yukle('kahve', 'semboller.yaml');
   if (kahve) {
+    for (const f of listYaml(join(CONTENT, 'kahve')).filter((f) => /semboller-\d+\.yaml$/.test(f))) kahve.semboller.push(...(loadYaml(f)?.semboller ?? []));
     benzersizKey(kahve.semboller, 'kahve');
     for (const s of kahve.semboller) if (!s.anlam || ![-1, 0, 1].includes(s.ton)) fail(`kahve: ${s.key} eksik`);
-    if (countList(kahve.semboller) < 100) warn(`kahve: ${countList(kahve.semboller)} sembol < 100`);
+    if (countList(kahve.semboller) < 240) warn(`kahve: ${countList(kahve.semboller)} sembol < 240`);
     out.kahve = kahve;
   }
   const ruya = yukle('ruya', 'sozluk.yaml');
   if (ruya) {
+    for (const f of listYaml(join(CONTENT, 'ruya')).filter((f) => /sozluk-\d+\.yaml$/.test(f))) ruya.semboller.push(...(loadYaml(f)?.semboller ?? []));
     benzersizKey(ruya.semboller, 'ruya');
     for (const s of ruya.semboller) if (!s.gelenek || !s.ic) fail(`ruya: ${s.key} eksik`);
-    if (countList(ruya.semboller) < 100) warn(`ruya: ${countList(ruya.semboller)} sembol < 100`);
+    if (countList(ruya.semboller) < 240) warn(`ruya: ${countList(ruya.semboller)} sembol < 240`);
     out.ruya = ruya;
   }
   const num = yukle('numeroloji', 'sayilar.yaml');

@@ -73,6 +73,7 @@ describe('I Ching', () => {
     const y = ichingYorum(ichingOku([9, 9, 9, 9, 9, 9]), c);
     expect(y.donusen.no).toBe(2);
     expect(y.degisen).toHaveLength(6);
+    for (const d of y.degisen) expect(d.soz.length).toBeGreaterThan(10);
   });
   it('64 heksagramın hepsi bulunur', () => {
     const r = seeded('ic');
@@ -131,5 +132,14 @@ describe('rüya metni', async () => {
     const c = J('ruya');
     const k = ruyaMetindenBul(c.semboller, 'Dün gece rüyamda denizde yüzüyordum, sonra bir yılanı gördüm ve evime kaçtım.');
     expect(k).toEqual(expect.arrayContaining(['deniz', 'yilan', 'ev']));
+  });
+});
+
+describe('rüya metni en uzun eşleşme', async () => {
+  const { ruyaMetindenBul } = await import('../src/engine/interpret/fal.js');
+  it('ayı ay değildir', () => {
+    const k = ruyaMetindenBul(J('ruya').semboller, 'Ormanda bir ayı gördüm.');
+    expect(k).toContain('ayi');
+    expect(k).not.toContain('ay');
   });
 });

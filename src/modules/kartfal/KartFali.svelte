@@ -151,6 +151,7 @@
             {#if p.poz?.cerceve}<p class="kucuk sessiz">{p.poz.cerceve}</p>{/if}
             <p class="okuma">{p.ana ?? p.metin}</p>
             {#if p.ek}<p class="okuma sessiz">{p.ek}</p>{/if}
+            {#if p.ogut && !p.ters}<p class="poz-ogut">{p.ogut}</p>{/if}
           </section>
         {/each}
         {#if yorum.ciftler?.length}
@@ -202,6 +203,7 @@
   @keyframes belir { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .poz { border-left: 2px solid var(--altin-koyu); padding-left: 1rem; display: grid; gap: 0.4rem; }
   .poz h3 { font-size: var(--t-1); color: var(--altin); }
+  .poz-ogut { font-family: var(--serif); font-style: italic; color: var(--altin-acik); }
   .kart-ad { color: var(--ay-soluk); font-weight: 400; }
   .poz ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.5rem; }
   .genel { border-left-color: var(--altin); }
