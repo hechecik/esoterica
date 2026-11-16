@@ -9,6 +9,14 @@
   const MODULLER = {
     '/harita': () => import('./modules/harita/Harita.svelte'),
     '/gunluk': () => import('./modules/gunluk/Gunluk.svelte'),
+    '/tarot': () => import('./modules/kartfal/KartFali.svelte'),
+    '/lenormand': () => import('./modules/kartfal/KartFali.svelte'),
+    '/run': () => import('./modules/kartfal/KartFali.svelte'),
+    '/iskambil': () => import('./modules/kartfal/KartFali.svelte'),
+    '/iching': () => import('./modules/iching/IChing.svelte'),
+    '/kahve': () => import('./modules/kahve/Kahve.svelte'),
+    '/ruya': () => import('./modules/ruya/Ruya.svelte'),
+    '/sayilar': () => import('./modules/sayilar/Sayilar.svelte'),
   };
   let tembel = $state(null);
   $effect(() => {
@@ -16,7 +24,7 @@
     tembel = null;
     if (yukle) yukle().then((m) => (tembel = m.default));
   });
-  const sayfa = $derived(
+  const Sayfa = $derived(
     router.path.startsWith('/remil') ? Remil :
     router.path === '/gizlilik' ? Gizlilik :
     MODULLER[router.path] ? tembel : Ana,
@@ -35,8 +43,8 @@
 
 <main class="sayfa">
   {#key router.path}
-    {#if sayfa}
-      <svelte:component this={sayfa} />
+    {#if Sayfa}
+      <Sayfa />
     {:else}
       <p class="sessiz yukleniyor">Açılıyor…</p>
     {/if}

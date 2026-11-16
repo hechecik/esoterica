@@ -244,3 +244,27 @@ export function cinYorum(sonuc, c, karsi = null, cinUyum = null) {
   if (karsi && cinUyum) out.uyum = { karsi: c.hayvanlar[karsi].ad, metin: c.uyum[cinUyum(sonuc.hayvan, karsi)] };
   return out;
 }
+
+// İki harfli adlar (ev, su, at…) için yalnızca yaygın hâl ve iyelik ekleri kabul edilir.
+const KISA_EK = new Set(['', 'e', 'a', 'i', 'ı', 'u', 'ü', 'de', 'da', 'te', 'ta', 'den', 'dan', 'ten', 'tan', 'im', 'ım', 'um', 'üm', 'ime', 'ıma', 'uma', 'üme', 'imde', 'ımda', 'umda', 'ümde', 'imden', 'ımdan', 'in', 'ın', 'un', 'ün', 'ler', 'lar', 'leri', 'ları', 'imiz', 'ımız', 'ye', 'ya', 'yu', 'yü', 'yi', 'yı', 'yla', 'yle', 'la', 'le']);
+
+/**
+ * Serbest rüya metninde sembolleri bulur. Türkçe ekler için kelime başı eşleşmesi:
+ * "yılanı", "yılanlar" -> yılan. Çok kısa adlar (3 harften az) yalnızca tam eşleşir.
+ */
+export function ruyaMetindenBul(liste, metin) {
+  const kelimeler = katla(metin).split(/[^a-zçğıöşü]+/).filter(Boolean);
+  const bulunan = [];
+  for (const s of liste) {
+    const adlar = [s.ad, ...(s.es ?? [])].map(katla);
+    const tutar = adlar.some((ad) => {
+      const parca = ad.split(/[^a-zçğıöşü]+/).filter(Boolean);
+      if (parca.length > 1) return katla(metin).includes(ad);
+      const a = parca[0];
+      if (!a) return false;
+      return kelimeler.some((k) => (a.length < 3 ? k.startsWith(a) && KISA_EK.has(k.slice(a.length)) : k.startsWith(a) && k.length - a.length <= 5));
+    });
+    if (tutar) bulunan.push(s.key);
+  }
+  return bulunan;
+}

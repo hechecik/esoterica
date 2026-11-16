@@ -54,8 +54,8 @@
   <Cark {harita} />
 
   <div class="sekmeler cipler" role="tablist">
-    <button class="cip" role="tab" aria-selected={sekme === 'yorum'} aria-pressed={sekme === 'yorum'} onclick={() => (sekme = 'yorum')}>Yorum</button>
-    <button class="cip" role="tab" aria-selected={sekme === 'teknik'} aria-pressed={sekme === 'teknik'} onclick={() => (sekme = 'teknik')}>Konumlar ve açılar</button>
+    <button class="cip" role="tab" aria-selected={sekme === 'yorum'} onclick={() => (sekme = 'yorum')}>Yorum</button>
+    <button class="cip" role="tab" aria-selected={sekme === 'teknik'} onclick={() => (sekme = 'teknik')}>Konumlar ve açılar</button>
   </div>
 
   {#if sekme === 'yorum'}

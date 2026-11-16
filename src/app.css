@@ -113,8 +113,8 @@ button { font: inherit; color: inherit; }
   border: 1px solid var(--cizgi); background: transparent; color: var(--ay-soluk); cursor: pointer;
   transition: all 160ms var(--yay);
 }
-.cip[aria-pressed="true"] { background: var(--altin); color: var(--gece); border-color: var(--altin); }
-.cip:hover:not([aria-pressed="true"]) { border-color: var(--altin); color: var(--ay); }
+.cip[aria-pressed="true"], .cip[aria-selected="true"] { background: var(--altin); color: var(--gece); border-color: var(--altin); }
+.cip:hover:not([aria-pressed="true"]):not([aria-selected="true"]) { border-color: var(--altin); color: var(--ay); }
 
 /* Alan */
 .alan { width: 100%; padding: 0.75rem 1rem; border-radius: var(--yumusak); border: 1px solid var(--cizgi); background: rgba(11, 13, 31, 0.6); color: var(--ay); }

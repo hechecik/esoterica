@@ -124,3 +124,12 @@ describe('numeroloji, yıldızname, Çin', () => {
     expect(y.uyum.metin).toMatch(/uyumlu/);
   });
 });
+
+describe('rüya metni', async () => {
+  const { ruyaMetindenBul } = await import('../src/engine/interpret/fal.js');
+  it('ekli kelimelerden sembol bulur', () => {
+    const c = J('ruya');
+    const k = ruyaMetindenBul(c.semboller, 'Dün gece rüyamda denizde yüzüyordum, sonra bir yılanı gördüm ve evime kaçtım.');
+    expect(k).toEqual(expect.arrayContaining(['deniz', 'yilan', 'ev']));
+  });
+});
